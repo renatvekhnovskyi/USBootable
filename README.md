@@ -1,10 +1,10 @@
 # USBootable
 
-A Windows utility for preparing and working with bootable USB drives.
+A Windows utility for testing and benchmarking any kinds of drives.
 
 ## Overview
 
-**USBootable** is a Windows-focused utility designed to simplify common tasks involved in creating and managing bootable USB media.
+**USBootable** is a Windows-focused utility designed to benchmark drives, such as SSDs, (bootable) USB media etc.
 
 The project is organized into separate source, configuration, and tooling directories to keep the application maintainable and easy to build.
 
