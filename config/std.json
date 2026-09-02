@@ -1,0 +1,421 @@
+{
+  "version": 1,
+
+ "defaults": {
+  "duration_seconds": 30,
+  "warmup_seconds": 5,
+  "cooldown_seconds": 2,
+  "runs": 3,
+
+  "block_size": "4K",
+  "threads": 1,
+  "queue_depth": 1,
+
+  "target_type": "file",
+  "test_file_size": "1G",
+
+  "disable_cache": true,
+  "disable_os_buffering": true,
+  "write_through": false,
+
+  "random": true,
+  "direct": true
+},
+
+  "presets": {
+    "os_boot": {
+      "name": "OS Boot",
+      "description": "Measures storage characteristics relevant to booting and running an operating system from the drive.",
+
+      "tests": [
+        {
+          "id": "boot_4k_qd1",
+          "description": "Small random reads with minimal queueing",
+          "block_size": "4K",
+          "access": "read",
+          "threads": 1,
+          "queue_depth": 1,
+          "duration_seconds": 30
+        },
+        {
+          "id": "boot_4k_qd4",
+          "description": "Small random reads with moderate parallelism",
+          "block_size": "4K",
+          "access": "read",
+          "threads": 1,
+          "queue_depth": 4,
+          "duration_seconds": 30
+        },
+        {
+          "id": "boot_16k_qd1",
+          "description": "Small-to-medium random reads",
+          "block_size": "16K",
+          "access": "read",
+          "threads": 1,
+          "queue_depth": 1,
+          "duration_seconds": 30
+        },
+        {
+          "id": "boot_seq_read",
+          "description": "Sequential reads for larger OS files",
+          "block_size": "128K",
+          "access": "read",
+          "threads": 1,
+          "queue_depth": 1,
+          "random": false,
+          "duration_seconds": 30
+        }
+      ],
+
+      "scoring": {
+        "method": "weighted",
+        "scale": [0, 100],
+
+        "tests": {
+          "boot_4k_qd1": {
+            "metric": "iops",
+            "weight": 0.40,
+            "curve": [
+              [500, 0],
+              [1000, 15],
+              [2500, 40],
+              [5000, 70],
+              [10000, 100]
+            ]
+          },
+
+          "boot_4k_qd4": {
+            "metric": "iops",
+            "weight": 0.25,
+            "curve": [
+              [1000, 0],
+              [5000, 20],
+              [15000, 50],
+              [30000, 80],
+              [60000, 100]
+            ]
+          },
+
+          "boot_16k_qd1": {
+            "metric": "iops",
+            "weight": 0.15,
+            "curve": [
+              [250, 0],
+              [750, 20],
+              [2000, 50],
+              [4000, 80],
+              [8000, 100]
+            ]
+          },
+
+          "boot_seq_read": {
+            "metric": "throughput_mib_s",
+            "weight": 0.20,
+            "curve": [
+              [50, 0],
+              [150, 20],
+              [300, 50],
+              [500, 75],
+              [1000, 100]
+            ]
+          }
+        }
+      }
+    },
+
+    "os_install": {
+      "name": "OS Installation",
+      "description": "Measures storage behavior relevant to installing an operating system.",
+
+      "tests": [
+        {
+          "id": "install_seq_read",
+          "description": "Sequential reads",
+          "block_size": "128K",
+          "access": "read",
+          "threads": 2,
+          "queue_depth": 4,
+          "random": false,
+          "duration_seconds": 30
+        },
+        {
+          "id": "install_seq_write",
+          "description": "Sequential writes",
+          "block_size": "128K",
+          "access": "write",
+          "threads": 2,
+          "queue_depth": 4,
+          "random": false,
+          "duration_seconds": 30
+        },
+        {
+          "id": "install_random_write",
+          "description": "Small random writes",
+          "block_size": "4K",
+          "access": "write",
+          "threads": 2,
+          "queue_depth": 4,
+          "duration_seconds": 30
+        },
+        {
+          "id": "install_random_read",
+          "description": "Small random reads",
+          "block_size": "4K",
+          "access": "read",
+          "threads": 2,
+          "queue_depth": 4,
+          "duration_seconds": 30
+        }
+      ],
+
+      "scoring": {
+        "method": "weighted",
+        "scale": [0, 100],
+
+        "tests": {
+          "install_seq_read": {
+            "metric": "throughput_mib_s",
+            "weight": 0.30,
+            "curve": [
+              [50, 0],
+              [150, 20],
+              [300, 50],
+              [500, 80],
+              [1000, 100]
+            ]
+          },
+
+          "install_seq_write": {
+            "metric": "throughput_mib_s",
+            "weight": 0.30,
+            "curve": [
+              [30, 0],
+              [100, 20],
+              [250, 50],
+              [450, 80],
+              [800, 100]
+            ]
+          },
+
+          "install_random_write": {
+            "metric": "iops",
+            "weight": 0.20,
+            "curve": [
+              [250, 0],
+              [1000, 20],
+              [3000, 50],
+              [7000, 80],
+              [15000, 100]
+            ]
+          },
+
+          "install_random_read": {
+            "metric": "iops",
+            "weight": 0.20,
+            "curve": [
+              [500, 0],
+              [2000, 20],
+              [5000, 50],
+              [15000, 80],
+              [30000, 100]
+            ]
+          }
+        }
+      }
+    },
+
+    "general_storage": {
+      "name": "General Storage",
+      "description": "Balanced benchmark for general-purpose storage performance.",
+
+      "tests": [
+        {
+          "id": "general_seq_read",
+          "block_size": "1M",
+          "access": "read",
+          "threads": 2,
+          "queue_depth": 8,
+          "random": false,
+          "duration_seconds": 30
+        },
+        {
+          "id": "general_seq_write",
+          "block_size": "1M",
+          "access": "write",
+          "threads": 2,
+          "queue_depth": 8,
+          "random": false,
+          "duration_seconds": 30
+        },
+        {
+          "id": "general_random_read",
+          "block_size": "4K",
+          "access": "read",
+          "threads": 4,
+          "queue_depth": 16,
+          "duration_seconds": 30
+        },
+        {
+          "id": "general_random_write",
+          "block_size": "4K",
+          "access": "write",
+          "threads": 4,
+          "queue_depth": 16,
+          "duration_seconds": 30
+        }
+      ],
+
+      "scoring": {
+        "method": "weighted",
+        "scale": [0, 100],
+
+        "tests": {
+          "general_seq_read": {
+            "metric": "throughput_mib_s",
+            "weight": 0.30,
+            "curve": [
+              [100, 0],
+              [300, 25],
+              [600, 50],
+              [1000, 75],
+              [2000, 100]
+            ]
+          },
+
+          "general_seq_write": {
+            "metric": "throughput_mib_s",
+            "weight": 0.25,
+            "curve": [
+              [50, 0],
+              [200, 25],
+              [400, 50],
+              [700, 75],
+              [1500, 100]
+            ]
+          },
+
+          "general_random_read": {
+            "metric": "iops",
+            "weight": 0.25,
+            "curve": [
+              [1000, 0],
+              [5000, 25],
+              [15000, 50],
+              [30000, 75],
+              [60000, 100]
+            ]
+          },
+
+          "general_random_write": {
+            "metric": "iops",
+            "weight": 0.20,
+            "curve": [
+              [500, 0],
+              [2500, 25],
+              [7500, 50],
+              [20000, 75],
+              [40000, 100]
+            ]
+          }
+        }
+      }
+    },
+
+    "drive_stress": {
+      "name": "Drive Stress",
+      "description": "Measures sustained storage performance under heavier sequential and random workloads.",
+
+      "tests": [
+        {
+          "id": "stress_seq_read",
+          "block_size": "1M",
+          "access": "read",
+          "threads": 4,
+          "queue_depth": 32,
+          "random": false,
+          "duration_seconds": 120
+        },
+        {
+          "id": "stress_seq_write",
+          "block_size": "1M",
+          "access": "write",
+          "threads": 4,
+          "queue_depth": 32,
+          "random": false,
+          "duration_seconds": 120
+        },
+        {
+          "id": "stress_random_read",
+          "block_size": "4K",
+          "access": "read",
+          "threads": 8,
+          "queue_depth": 32,
+          "duration_seconds": 120
+        },
+        {
+          "id": "stress_random_write",
+          "block_size": "4K",
+          "access": "write",
+          "threads": 8,
+          "queue_depth": 32,
+          "duration_seconds": 120
+        }
+      ],
+
+      "scoring": {
+        "method": "weighted",
+        "scale": [0, 100],
+
+        "tests": {
+          "stress_seq_read": {
+            "metric": "throughput_mib_s",
+            "weight": 0.30,
+            "curve": [
+              [100, 0],
+              [300, 25],
+              [700, 50],
+              [1500, 75],
+              [3000, 100]
+            ]
+          },
+
+          "stress_seq_write": {
+            "metric": "throughput_mib_s",
+            "weight": 0.30,
+            "curve": [
+              [50, 0],
+              [200, 25],
+              [500, 50],
+              [1000, 75],
+              [2500, 100]
+            ]
+          },
+
+          "stress_random_read": {
+            "metric": "iops",
+            "weight": 0.20,
+            "curve": [
+              [5000, 0],
+              [20000, 25],
+              [50000, 50],
+              [100000, 75],
+              [200000, 100]
+            ]
+          },
+
+          "stress_random_write": {
+            "metric": "iops",
+            "weight": 0.20,
+            "curve": [
+              [2000, 0],
+              [10000, 25],
+              [30000, 50],
+              [60000, 75],
+              [120000, 100]
+            ]
+          }
+        }
+      }
+    }
+  }
+}
